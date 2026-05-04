@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>登录 - 医疗知识问答系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/feather/feather.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/mdi/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/ti-icons/css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/typicons/typicons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/simple-line-icons/css/simple-line-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/css/aiask.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='202304068/images/favicon.png') }}">
+</head>
+<body>
+    <div class="container-scroller">
+        <div class="container-fluid page-body-wrapper full-page-wrapper">
+            <div class="content-wrapper d-flex align-items-center auth px-0">
+                <div class="row w-100 mx-0">
+                    <div class="col-lg-4 mx-auto">
+                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                            <div class="brand-logo">
+                                <span class="aiask-brand-text" title="医疗知识问答系统">医疗知识问答系统</span>
+                            </div>
+                            <h4>欢迎回来</h4>
+                            <h6 class="fw-light">登录后继续使用</h6>
+                            <form class="pt-3" id="loginForm">
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-lg" id="id_username" placeholder="用户名" autocomplete="username" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-lg" id="id_password" placeholder="密码" autocomplete="current-password" required>
+                                </div>
+                                <div class="mt-3 d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg font-weight-medium auth-form-btn">登录</button>
+                                </div>
+                                <div class="text-center mt-4 fw-light">
+                                    还没有账号？ <a href="{{ url_for('auth.register') }}" class="text-primary">去注册</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='202304068/vendors/js/vendor.bundle.base.js') }}"></script>
+    <script src="{{ url_for('static', filename='202304068/js/off-canvas.js') }}"></script>
+    <script src="{{ url_for('static', filename='202304068/js/hoverable-collapse.js') }}"></script>
+    <script src="{{ url_for('static', filename='202304068/js/template.js') }}"></script>
+    <script src="{{ url_for('static', filename='202304068/js/settings.js') }}"></script>
+
+    <script>
+        $(function () {
+            $("#loginForm").on("submit", function (event) {
+                event.preventDefault();
+                var username = $("#id_username").val();
+                var password = $("#id_password").val();
+
+                if (!username || !password) {
+                    alert("用户名和密码不能为空");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url_for('auth.login_users') }}",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        username: username,
+                        password: password
+                    }),
+                    success: function (data) {
+                        if (data.success) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            alert(data.message || "登录失败");
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = (xhr.responseJSON && (xhr.responseJSON.message || xhr.responseJSON.error)) || "登录请求失败";
+                        alert(msg);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

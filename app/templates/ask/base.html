@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}医疗知识问答系统{% endblock %}</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/feather/feather.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/mdi/css/materialdesignicons.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/ti-icons/css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/typicons/typicons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/simple-line-icons/css/simple-line-icons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/vendors/css/vendor.bundle.base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='202304068/css/aiask.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='202304068/images/favicon.png') }}">
+</head>
+<body>
+{% set ep = request.endpoint or '' %}
+
+<div class="container-scroller">
+    <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
+            <div class="me-3">
+                <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
+                    <span class="icon-menu"></span>
+                </button>
+            </div>
+            <div>
+                <a class="navbar-brand brand-logo" href="{{ url_for('ask.index') }}">
+                    <span class="aiask-brand-text" title="医疗知识问答系统">医疗知识问答系统</span>
+                </a>
+                <a class="navbar-brand brand-logo-mini" href="{{ url_for('ask.index') }}">
+                    <span class="aiask-brand-text aiask-brand-text-mini" title="医疗知识问答系统">医疗知识问答系统</span>
+                </a>
+            </div>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-top">
+            <ul class="navbar-nav ms-auto">
+                {% if current_user.is_authenticated %}
+                <li class="nav-item dropdown user-dropdown">
+                    <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-2 d-none d-md-inline">{{ current_user.username }}</span>
+                        <i class="mdi mdi-account-circle-outline"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                        <a class="dropdown-item" href="{{ url_for('ask.profile') }}">
+                            <i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i>个人中心
+                        </a>
+                        <a class="dropdown-item" href="{{ url_for('auth.logout_users') }}">
+                            <i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>退出登录
+                        </a>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('ask.login') }}">
+                        <i class="mdi mdi-login"></i> 登录
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-bs-toggle="offcanvas">
+                <span class="mdi mdi-menu"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container-fluid page-body-wrapper">
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item nav-category">功能</li>
+
+                <li class="nav-item {% if ep == 'ask.index' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.index') }}">
+                        <i class="mdi mdi-comment-question-outline menu-icon"></i>
+                        <span class="menu-title">智能问答</span>
+                    </a>
+                </li>
+
+                <li class="nav-item {% if ep == 'ask.knowledge_search' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.knowledge_search') }}">
+                        <i class="mdi mdi-magnify menu-icon"></i>
+                        <span class="menu-title">知识库检索</span>
+                    </a>
+                </li>
+
+                <li class="nav-item {% if ep == 'ask.knowledge_list' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.knowledge_list', page=1) }}">
+                        <i class="mdi mdi-book-open-page-variant menu-icon"></i>
+                        <span class="menu-title">医疗知识库</span>
+                    </a>
+                </li>
+
+                <li class="nav-item {% if ep == 'ask.disease_list' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.disease_list') }}">
+                        <i class="mdi mdi-hospital-box-outline menu-icon"></i>
+                        <span class="menu-title">病症查询</span>
+                    </a>
+                </li>
+
+                <li class="nav-item {% if ep == 'ask.question_add' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.question_add') }}">
+                        <i class="mdi mdi-pencil menu-icon"></i>
+                        <span class="menu-title">我要提问</span>
+                    </a>
+                </li>
+
+                <li class="nav-item {% if ep == 'ask.question_list' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.question_list', page=1) }}">
+                        <i class="mdi mdi-format-list-bulleted menu-icon"></i>
+                        <span class="menu-title">问答列表</span>
+                    </a>
+                </li>
+
+                {% if current_user.is_authenticated %}
+                <li class="nav-item {% if ep == 'ask.profile' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('ask.profile') }}">
+                        <i class="mdi mdi-account-circle-outline menu-icon"></i>
+                        <span class="menu-title">个人中心</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <div class="main-panel">
+            <div class="content-wrapper">
+                {% for message in get_flashed_messages() %}
+                <div class="alert alert-warning" role="alert">{{ message }}</div>
+                {% endfor %}
+
+                {% block content %}{% endblock %}
+            </div>
+
+            <footer class="footer">
+                <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                    <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">医疗知识问答系统</span>
+                    <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">基于 Python + Neo4j</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='202304068/vendors/js/vendor.bundle.base.js') }}"></script>
+<script src="{{ url_for('static', filename='202304068/js/off-canvas.js') }}"></script>
+<script src="{{ url_for('static', filename='202304068/js/hoverable-collapse.js') }}"></script>
+<script src="{{ url_for('static', filename='202304068/js/template.js') }}"></script>
+<script src="{{ url_for('static', filename='202304068/js/settings.js') }}"></script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

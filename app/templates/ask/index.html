@@ -1,0 +1,130 @@
+{% extends "ask/base.html" %}
+
+{% block title %}智能问答 | 医疗知识问答系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3 class="page-title">智能问答</h3>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card aiask-qa">
+            <div class="card-body">
+                <form id="aiask-qa-form" method="post" action="{{ url_for('ask.index') }}">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-3">
+                        <div class="pe-md-3">
+                            <h4 class="card-title mb-1">输入问题</h4>
+                            <p class="aiask-qa-intro mb-0">系统将基于医疗知识图谱生成答案。</p>
+                        </div>
+                        <div class="aiask-toolbar d-flex mt-3 mt-md-0">
+                            <button type="button" class="btn btn-light btn-sm" id="aiask-clear">清空</button>
+                            <button type="submit" class="btn btn-primary btn-sm">查询答案</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">问题</label>
+                        <textarea class="form-control aiask-qa-textarea" name="search_name" rows="4" placeholder="例如：乙肝有什么症状？">{{ question or '' }}</textarea>
+                        <small class="text-muted d-block mt-1">小技巧：按 Ctrl + Enter 可快速提交。</small>
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="text-muted mb-2">你可以试试：</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm aiask-suggest-btn aiask-suggest" data-q="乙肝有什么症状？">乙肝有什么症状？</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm aiask-suggest-btn aiask-suggest" data-q="糖尿病怎么治疗？">糖尿病怎么治疗？</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm aiask-suggest-btn aiask-suggest" data-q="高血压的注意事项有哪些？">高血压的注意事项有哪些？</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm aiask-suggest-btn aiask-suggest" data-q="感冒吃什么药？">感冒吃什么药？</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if result is defined and result %}
+        <div class="card mt-3 aiask-qa">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h4 class="card-title mb-0">答案</h4>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="aiask-copy">复制</button>
+                </div>
+                <pre class="aiask-result" id="aiask-result">{{ result }}</pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+(function () {
+    var form = document.getElementById("aiask-qa-form");
+    if (!form) return;
+
+    var textarea = form.querySelector('textarea[name="search_name"]');
+    var clearBtn = document.getElementById("aiask-clear");
+    var copyBtn = document.getElementById("aiask-copy");
+    var resultEl = document.getElementById("aiask-result");
+
+    function setQuestion(text) {
+        if (!textarea) return;
+        textarea.value = text || '';
+        textarea.focus();
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener("click", function () {
+            setQuestion("");
+        });
+    }
+
+    var suggestButtons = document.querySelectorAll(".aiask-suggest");
+    suggestButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            setQuestion(btn.getAttribute("data-q") || btn.innerText || "");
+        });
+    });
+
+    if (textarea) {
+        textarea.addEventListener("keydown", function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                form.submit();
+            }
+        });
+    }
+
+    function fallbackSelect(el) {
+        try {
+            var range = document.createRange();
+            range.selectNode(el);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } catch (err) {
+            // 忽略
+        }
+    }
+
+    if (copyBtn && resultEl) {
+        copyBtn.addEventListener("click", function () {
+            var text = resultEl.innerText || "";
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () {
+                    var oldText = copyBtn.innerText;
+                    copyBtn.innerText = "已复制";
+                    window.setTimeout(function () {
+                        copyBtn.innerText = oldText;
+                    }, 1500);
+                }).catch(function () {
+                    fallbackSelect(resultEl);
+                });
+            } else {
+                fallbackSelect(resultEl);
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

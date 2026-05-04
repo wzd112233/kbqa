@@ -1,0 +1,146 @@
+{% extends "ask/base.html" %}
+
+{% block title %}问题详情 - 医疗知识问答系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3 class="page-title">问题详情</h3>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- 问题主体卡片 -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title mb-2">{{ qs.title }}</h4>
+                <div class="mb-4" style="white-space: pre-wrap;">{{ qs.content }}</div>
+                <div class="text-muted">
+                    作者：{{ qs.author.username }} | 创建时间：{{ qs.create_time }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 答案列表 -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title mb-3">答案（{{ qs.answers_count }}）</h4>
+                {% for ans in qs.answers %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted">
+                                <strong>{{ ans.author.username }}</strong>
+                                <span class="ms-2">{{ ans.create_time }}</span>
+                            </div>
+                            <a class="btn btn-sm btn-outline-primary reply-answer" href="#respond" data-ans-id="{{ ans.id }}">回复</a>
+                        </div>
+                        <div class="mt-2" style="white-space: pre-wrap;">{{ ans.content }}</div>
+
+                        <!-- 评论列表 -->
+                        {% if ans.comments %}
+                        <div class="mt-3">
+                            <div class="text-muted mb-2">评论</div>
+                            {% for cm in ans.comments %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <div><strong>{{ cm.author.username }}</strong></div>
+                                    <small class="text-muted">{{ cm.create_time }}</small>
+                                </div>
+                                <div class="mt-1" style="white-space: pre-wrap;">{{ cm.content }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info mb-0">暂无答案，欢迎来回答</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 回复表单 -->
+        <div class="card" id="respond">
+            <div class="card-body">
+                <h4 class="card-title">提交回复</h4>
+                {% if current_user.is_authenticated %}
+                <div class="alert alert-light">
+                    提示：直接提交为“回答问题”；点击某条答案右侧的“回复”后再提交为“评论答案”。
+                </div>
+                <div class="form-group mb-3">
+                    <textarea id="comment" class="form-control" rows="4" placeholder="请输入内容"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" id="submit">提交</button>
+                <button type="button" class="btn btn-light" id="reset-reply">切回答</button>
+                {% else %}
+                <div class="alert alert-warning mb-0">
+                    登录后才能回答或回复。
+                    <a href="{{ url_for('ask.login') }}" class="alert-link">去登录</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 隐藏的表单配置，用于JS读取URL和参数 -->
+        <div id="reply-info" rid="" qs-url="{{ url_for('ask.question_answer', question_id=qs.id) }}"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(function () {
+    var submitBtn = $("#submit");
+    var resetBtn = $("#reset-reply");
+    var replyInfo = $("#reply-info");
+    var commentEl = $("#comment");
+
+    // 提交按钮事件
+    if (submitBtn) {
+        submitBtn.on("click", function () {
+            var url = replyInfo.attr("qs-url");
+            var content = commentEl.val();
+            var rid = replyInfo.attr("rid") || "";
+
+            if (!content) {
+                alert("请输入内容");
+                return;
+            }
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    content: content,
+                    rid: rid
+                },
+                success: function (json) {
+                    if (json.status === "success") {
+                        window.location.reload();
+                    } else if (json.info) {
+                        alert(json.info);
+                    }
+                },
+                error: function () {
+                    alert("提交失败，请确认已登录并稍后重试。");
+                }
+            });
+        });
+    }
+
+    // 回复按钮事件：切换为评论模式
+    $(".reply-answer").on("click", function () {
+        replyInfo.attr("qs-url", "{{ url_for('ask.question_comment', question_id=qs.id) }}");
+        replyInfo.attr("rid", $(this).data("ans-id"));
+    });
+
+    // 重置按钮事件：切回回答模式
+    if (resetBtn) {
+        resetBtn.on("click", function () {
+            replyInfo.attr("qs-url", "{{ url_for('ask.question_answer', question_id=qs.id) }}");
+            replyInfo.attr("rid", "");
+        });
+    }
+})();
+</script>
+{% endblock %}

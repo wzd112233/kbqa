@@ -1,0 +1,31 @@
+{% extends "ask/base.html" %}
+{% import "ui/pagination.html" as pg %}
+
+{% block title %}知识库 - 医疗知识问答系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3 class="page-title">医疗知识库</h3>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        {% for item in kls.items %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title mb-1">
+                    <a href="{{ url_for('ask.knowledge_detail', knowledge_id=item.id) }}">{{ item.title }}</a>
+                </h5>
+                <p class="text-muted mb-0">{{ item.content|striptags|truncate(180) }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mb-0">暂无知识库数据</div>
+        {% endfor %}
+
+        <div class="mt-3">
+            {{ pg.render(kls, 'ask.knowledge_list') }}
+        </div>
+    </div>
+</div>
+{% endblock %}

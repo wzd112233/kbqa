@@ -1,0 +1,60 @@
+# ======================================
+# 医疗知识问答系统 专用 .gitignore
+# 适配 Python + Flask 项目
+# ======================================
+
+# 1. Python 编译文件/缓存（必忽略）
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+
+# 2. 虚拟环境（开发环境，不上传）
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# 3. 编辑器/IDE 配置文件（个人配置，不上传）
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 4. 系统垃圾文件（跨平台）
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 5. 项目静态资源/数据文件（你脚本指定忽略）
+static/
+data/
+
+# 6. 打包/构建文件
+dist/
+build/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 7. 日志文件
+logs/
+*.log
+
+# 8. 环境变量/私密配置（数据库密码、密钥等）
+.env
+.flaskenv
+config.ini
+secret.json
+
+# 9. 数据库文件（SQLite）
+*.db
+*.sqlite3

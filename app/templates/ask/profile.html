@@ -1,0 +1,134 @@
+{% extends "ask/base.html" %}
+
+{% block title %}个人中心 - 医疗知识问答系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3 class="page-title">个人中心</h3>
+</div>
+
+<div class="row">
+    <!-- 账号信息卡片 -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">账号信息</h4>
+                <ul class="list-unstyled mb-0">
+                    <li><strong>用户名：</strong>{{ current_user.username }}</li>
+                    <li><strong>邮箱：</strong>{{ current_user.email }}</li>
+                    <li class="mt-2">
+                        <span class="badge badge-info">我的提问：{{ questions_count }}</span>
+                        <span class="badge badge-success ms-2">我的回答：{{ answers_count }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速入口卡片 -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">快速入口</h4>
+                <div class="d-grid gap-2 d-md-block">
+                    <a class="btn btn-primary" href="{{ url_for('ask.question_add') }}">我要提问</a>
+                    <a class="btn btn-light" href="{{ url_for('ask.question_list', page=1) }}">浏览问答</a>
+                    <a class="btn btn-light" href="{{ url_for('ask.knowledge_list', page=1) }}">浏览知识库</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改个人信息卡片 -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">修改个人信息</h4>
+                <form method="post" action="{{ url_for('ask.profile') }}">
+                    <input type="hidden" name="form_type" value="basic">
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" name="username" value="{{ current_user.username }}" maxlength="32" autocomplete="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-control" name="email" value="{{ current_user.email }}" maxlength="64" autocomplete="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                    <small class="text-muted d-block mt-2">用户名与邮箱需保持唯一。</small>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码卡片 -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">修改密码</h4>
+                <form method="post" action="{{ url_for('ask.profile') }}">
+                    <input type="hidden" name="form_type" value="password">
+                    <div class="form-group">
+                        <label class="form-label">当前密码</label>
+                        <input type="password" class="form-control" name="current_password" autocomplete="current-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">新密码</label>
+                        <input type="password" class="form-control" name="new_password" minlength="6" maxlength="16" autocomplete="new-password" required>
+                        <small class="text-muted d-block mt-1">密码长度 6~16 位</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认新密码</label>
+                        <input type="password" class="form-control" name="confirm_password" minlength="6" maxlength="16" autocomplete="new-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">修改密码</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 我的提问卡片 -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">我的提问（最近 10 条）</h4>
+                <div class="list-group">
+                    {% for q in my_questions %}
+                    <a class="list-group-item list-group-item-action" href="{{ url_for('ask.question_detail', question_id=q.id) }}">
+                        <div class="d-flex justify-content-between">
+                            <div><strong>{{ q.title }}</strong></div>
+                            <small class="text-muted">{{ q.create_time }}</small>
+                        </div>
+                        <div class="mt-1 text-muted">{{ q.content|striptags|truncate(80) }}</div>
+                    </a>
+                    {% else %}
+                    <div class="alert alert-info mb-0">你还没有提问</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 我的回答卡片 -->
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">我的回答（最近 10 条）</h4>
+                <div class="list-group">
+                    {% for a in my_answers %}
+                    <a class="list-group-item list-group-item-action" href="{{ url_for('ask.question_detail', question_id=a.question_id) }}">
+                        <div class="d-flex justify-content-between">
+                            <div><strong>前往问题</strong></div>
+                            <small class="text-muted">{{ a.create_time }}</small>
+                        </div>
+                        <div class="mt-1 text-muted">{{ a.content|striptags|truncate(100) }}</div>
+                    </a>
+                    {% else %}
+                    <div class="alert alert-info mb-0">你还没有回答</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

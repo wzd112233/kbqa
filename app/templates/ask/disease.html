@@ -1,0 +1,65 @@
+{% extends "ask/base.html" %}
+
+{% block title %}病症查询 - 医疗知识问答系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3 class="page-title">病症查询</h3>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card mb-3">
+            <div class="card-body">
+                <form method="post" action="{{ url_for('ask.disease_list') }}">
+                    <div class="row g-2">
+                        <div class="col-md-10">
+                            <input class="form-control" name="search" list="disease-suggest" value="{{ search_name or '' }}" placeholder="输入疾病名称或别名">
+                            <datalist id="disease-suggest">
+                                {% for n in names %}
+                                <option value="{{ n }}"></option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button class="btn btn-primary" type="submit">查询</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if search_name is defined and search_name and not result %}
+        <div class="alert alert-info">未找到匹配的疾病信息</div>
+        {% endif %}
+
+        {% if result %}
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">{{ result.name }}</h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr><th style="width: 160px;">别名</th><td>{{ result.alias }}</td></tr>
+                            <tr><th>发病部位</th><td>{{ result.part }}</td></tr>
+                            <tr><th>常见发病人群</th><td>{{ result.age }}</td></tr>
+                            <tr><th>传染性</th><td>{{ result.infection }}</td></tr>
+                            <tr><th>医保</th><td>{{ result.insurance }}</td></tr>
+                            <tr><th>所属科室</th><td>{{ result.department }}</td></tr>
+                            <tr><th>检查项</th><td>{{ result.checklist }}</td></tr>
+                            <tr><th>症状</th><td style="white-space: pre-wrap;">{{ result.symptom }}</td></tr>
+                            <tr><th>并发症</th><td style="white-space: pre-wrap;">{{ result.complication }}</td></tr>
+                            <tr><th>治疗方法</th><td style="white-space: pre-wrap;">{{ result.treatment }}</td></tr>
+                            <tr><th>药品</th><td style="white-space: pre-wrap;">{{ result.drug }}</td></tr>
+                            <tr><th>治疗周期</th><td>{{ result.period }}</td></tr>
+                            <tr><th>治愈率</th><td>{{ result.rate }}</td></tr>
+                            <tr><th>大致金额</th><td>{{ result.money }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
